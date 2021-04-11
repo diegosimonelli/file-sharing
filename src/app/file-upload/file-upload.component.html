@@ -1,0 +1,55 @@
+<!-- <div class="text-center">
+    <input class="form-control" type="file" 
+            (change)="onChange($event)">
+  
+    <button (click)="onUpload()" 
+        class="btn btn-success">
+        Upload
+    </button>
+</div> -->
+  
+
+  
+
+
+<div class="jumbotron">
+    <div class="container">
+        <div class="card text-center">
+            <div class="card-header">
+            File Sharing
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Special title treatment</h5>
+                <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                <!-- <input class="form-control" type="file" (change)="onChange($event)"> -->
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="inputGroupFile03" (change)="onChange($event)">
+                    <label class="custom-file-label" for="inputGroupFile03">Choose file</label>
+                  </div>
+                <button (click)="onUpload()" class="btn btn-success"> Upload </button>
+                <a href="#" class="btn btn-primary">Go somewhere</a>
+                
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<!--Flag variable is used here-->
+<div class="container" *ngIf="loading">
+    <h3>Loading ...</h3>
+</div>
+
+<div class="container">
+    <!-- Shareable short link of  uoloaded file -->
+    <div class="container text-center jumbotron" *ngIf="shortLink">
+        <h2> Visit Here</h2>
+        <a href="{{shortLink}}">{{shortLink}}</a>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label for="formFile" class="form-label">Default file input example</label>
+    <input class="form-control" type="file" id="formFile">
+  </div>
+
