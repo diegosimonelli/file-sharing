@@ -1,53 +1,58 @@
-<!-- <div class="text-center">
-    <input class="form-control" type="file" 
-            (change)="onChange($event)">
-  
-    <button (click)="onUpload()" 
-        class="btn btn-success">
-        Upload
-    </button>
-</div> -->
-  
-
-  
-
-
-<div class="jumbotron">
-    <div class="container">
-        <div class="card text-center">
-            <div class="card-header">
-            File Sharing
+<div id="page">
+    <br>
+        <div class="container">
+            <div class="card text-center">
+                <div class="card-header">
+                File Sharing
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Share your files with others</h5>
+                    <p class="card-text">Choose the file you want to share, upload and share the code. EASY!</p>
+                    <!-- <input class="form-control" type="file" (change)="onChange($event)"> -->
+                    <form>
+                        <div class="form-group" >
+                            <!-- <label for="exampleFormControlFile1">Example file input</label> -->
+                            <div class="card align-items-center">
+                                <div class="card-body">
+                                    <input type="file" class="form-control-file" id="exampleFormControlFile1" (change)="onChange($event)">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <br>
+                    <br>
+                    <button (click)="onUpload()" class="btn btn-primary">Upload</button>
+                </div>
             </div>
-            <div class="card-body">
-                <h5 class="card-title">Special title treatment</h5>
-                <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-                <!-- <input class="form-control" type="file" (change)="onChange($event)"> -->
-                <form>
-                    <div class="form-group" >
-                      <label for="exampleFormControlFile1">Example file input</label>
-                      <input type="file" class="form-control-file" id="exampleFormControlFile1" (change)="onChange($event)">
+        </div>
+
+    <br>
+    <!--Flag variable is used here-->
+    <div class="container" *ngIf="loading">
+        <h3>Loading ...</h3>
+    </div>
+
+    
+    <div class="container" *ngIf="shortLink">
+        <!-- Shareable short link of  uoloaded file -->
+        <div class="container text-center jumbotron">
+            <!-- <h2>Share this link</h2> -->
+            <!-- <a href="{{shortLink}}" target="_blank">{{shortLink}} google.com</a> -->
+            <div>
+                <h2>Link to share</h2>
+
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="basic-addon1">Link</span>
                     </div>
-                  </form>
-                  <br>
-                  <br>
-                <button (click)="onUpload()" class="btn btn-success"> Upload </button>
-                <a href="#" class="btn btn-primary">Go somewhere</a>
-                
+                    <input type="text" value="{{shortLink}}" class="form-control" aria-label="Username" aria-describedby="basic-addon1" #userinput readonly>
+                </div>
+
+                <!-- <input type="text" value="{{shortLink}}" #userinput readonly> -->
+                <button class="btn btn-success" (click)="copyInputMessage(userinput)" value="click to copy">Copy</button>
             </div>
-            
         </div>
     </div>
-</div>
 
-<!--Flag variable is used here-->
-<div class="container" *ngIf="loading">
-    <h3>Loading ...</h3>
 </div>
-
-<div class="container">
-    <!-- Shareable short link of  uoloaded file -->
-    <div class="container text-center jumbotron" *ngIf="shortLink">
-        <h2> Visit Here</h2>
-        <a href="{{shortLink}}">{{shortLink}}</a>
-    </div>
-</div>
+<!---->
