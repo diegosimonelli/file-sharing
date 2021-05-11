@@ -1,6 +1,6 @@
 # FileSharing
 
-Simple files sharing app created with file.io
+Simple files sharing app created with file.io and Angular
 
 ## Deployment
 
