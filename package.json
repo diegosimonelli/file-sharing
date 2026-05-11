@@ -2,14 +2,19 @@
   "name": "file-sharing",
   "version": "0.0.0",
   "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "test": "ng test",
-    "lint": "ng lint",
-    "e2e": "ng e2e"
+    "ng": "node --openssl-legacy-provider ./node_modules/@angular/cli/bin/ng",
+    "start": "npm run ng -- serve",
+    "build": "npm run ng -- build",
+    "test": "npm run ng -- test",
+    "lint": "npm run ng -- lint",
+    "e2e": "npm run ng -- e2e"
   },
   "private": true,
+  "overrides": {
+    "@angular-devkit/build-angular": {
+      "postcss": "8.4.38"
+    }
+  },
   "dependencies": {
     "@angular/animations": "~11.2.9",
     "@angular/common": "~11.2.9",

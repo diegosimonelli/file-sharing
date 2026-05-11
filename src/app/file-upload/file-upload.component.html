@@ -1,58 +1,129 @@
-<div id="page">
-    <br>
-        <div class="container">
-            <div class="card text-center">
-                <div class="card-header">
-                File Sharing
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title">Share your files with others</h5>
-                    <p class="card-text">Choose the file you want to share, upload and share the code. EASY!</p>
-                    <!-- <input class="form-control" type="file" (change)="onChange($event)"> -->
-                    <form>
-                        <div class="form-group" >
-                            <!-- <label for="exampleFormControlFile1">Example file input</label> -->
-                            <div class="card align-items-center">
-                                <div class="card-body">
-                                    <input type="file" class="form-control-file" id="exampleFormControlFile1" (change)="onChange($event)">
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                    <br>
-                    <br>
-                    <button (click)="onUpload()" class="btn btn-primary">Upload</button>
-                </div>
-            </div>
-        </div>
+<main class="fileshare-page">
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">FileShare</p>
+      <h1>Simple, secure file sharing</h1>
+      <p class="header-copy">Upload a file, get a shareable link, and keep your recent uploads organized in one clean workspace.</p>
+    </div>
+    <div class="status-pill">
+      <span class="status-dot"></span>
+      Ready to share
+    </div>
+  </header>
 
-    <br>
-    <!--Flag variable is used here-->
-    <div class="container" *ngIf="loading">
-        <h3>Loading ...</h3>
+  <section class="dashboard-grid">
+    <div class="upload-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="section-label">Upload</p>
+          <h2>Send a new file</h2>
+        </div>
+        <span class="upload-count">{{ uploadedFiles.length }} recent</span>
+      </div>
+
+      <label
+        class="drop-zone"
+        [class.dragging]="isDragging"
+        for="file-upload-input"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDrop($event)">
+        <input id="file-upload-input" type="file" (change)="onChange($event)">
+        <span class="upload-icon">+</span>
+        <strong>Drag files here or click to upload</strong>
+        <span class="upload-hint">Choose one file and FileShare will create a temporary share link.</span>
+      </label>
+
+      <div class="availability-note">
+        <span class="clock-icon">60</span>
+        Files stay available for {{ fileAvailabilityMinutes }} minutes after upload.
+      </div>
+
+      <div class="selected-file" *ngIf="file">
+        <div>
+          <span class="file-type">{{ file.type || 'File' }}</span>
+          <strong>{{ file.name }}</strong>
+          <small>{{ formatFileSize(file.size) }}</small>
+        </div>
+        <button class="primary-button" type="button" (click)="onUpload()" [disabled]="loading">
+          {{ loading ? 'Uploading...' : 'Upload file' }}
+        </button>
+      </div>
+
+      <div class="helper-row" *ngIf="!file">
+        <span>No file selected yet.</span>
+        <button class="ghost-button" type="button" disabled>Upload file</button>
+      </div>
+
+      <div class="state-message loading" *ngIf="loading">Creating your share link...</div>
+      <div class="state-message error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+      <div class="share-result" *ngIf="shortLink">
+        <div>
+          <p class="section-label">Share link</p>
+          <h3>Your file is ready</h3>
+        </div>
+        <div class="link-copy-row">
+          <input type="text" value="{{shortLink}}" #userinput readonly>
+          <button class="secondary-button" type="button" (click)="copyInputMessage(userinput)">Copy Link</button>
+        </div>
+      </div>
     </div>
 
-    
-    <div class="container" *ngIf="shortLink">
-        <!-- Shareable short link of  uoloaded file -->
-        <div class="container text-center jumbotron">
-            <!-- <h2>Share this link</h2> -->
-            <!-- <a href="{{shortLink}}" target="_blank">{{shortLink}} google.com</a> -->
-            <div>
-                <h2>Link to share</h2>
-
-                <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text" id="basic-addon1">Link</span>
-                    </div>
-                    <input type="text" value="{{shortLink}}" class="form-control" aria-label="Username" aria-describedby="basic-addon1" #userinput readonly>
-                </div>
-
-                <!-- <input type="text" value="{{shortLink}}" #userinput readonly> -->
-                <button class="btn btn-success" (click)="copyInputMessage(userinput)" value="click to copy">Copy</button>
-            </div>
+    <aside class="tips-panel">
+      <p class="section-label">Workspace</p>
+      <h2>Share faster</h2>
+      <p>Recent uploads stay visible during this session so you can copy links, download files, or remove completed shares from your view.</p>
+      <div class="metric-row">
+        <div>
+          <strong>{{ uploadedFiles.length }}</strong>
+          <span>Files uploaded</span>
         </div>
+        <div>
+          <strong>{{ loading ? 'Live' : 'Idle' }}</strong>
+          <span>Status</span>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="files-section">
+    <div class="panel-heading">
+      <div>
+        <p class="section-label">Files</p>
+        <h2>Recent uploads</h2>
+      </div>
     </div>
 
-</div>
-<!---->
+    <div class="empty-state" *ngIf="uploadedFiles.length === 0">
+      <div class="empty-icon">↑</div>
+      <h3>No files uploaded yet.</h3>
+      <p>Drop your first file into the upload area to create a shareable link.</p>
+    </div>
+
+    <div class="file-list" *ngIf="uploadedFiles.length > 0">
+      <article class="file-card" *ngFor="let uploadedFile of uploadedFiles">
+        <div class="file-main">
+          <span class="file-badge">{{ uploadedFile.type }}</span>
+          <div>
+            <h3>{{ uploadedFile.name }}</h3>
+            <p>{{ formatFileSize(uploadedFile.size) }} • Uploaded {{ uploadedFile.uploadedAt | date:'shortTime' }} • Expires {{ uploadedFile.expiresAt | date:'shortTime' }}</p>
+            <div class="expiry-track" [class.expired]="uploadedFile.expired">
+              <div class="expiry-fill" [style.width.%]="getExpiryProgress(uploadedFile)"></div>
+            </div>
+          </div>
+        </div>
+        <div class="expiry-countdown" [class.expired]="uploadedFile.expired">
+          <span>{{ uploadedFile.expired ? 'No longer available' : 'Available for' }}</span>
+          <strong>{{ formatRemainingTime(uploadedFile.remainingMs) }}</strong>
+        </div>
+        <div class="file-actions">
+          <a class="action-button" [class.disabled]="uploadedFile.expired" [href]="uploadedFile.expired ? null : uploadedFile.link" target="_blank" rel="noopener">Download</a>
+          <button class="action-button" type="button" (click)="copyLink(uploadedFile.link)" [disabled]="uploadedFile.expired">Copy Link</button>
+          <button class="action-button" type="button" (click)="shareFile(uploadedFile)" [disabled]="uploadedFile.expired">Share</button>
+          <button class="action-button danger" type="button" (click)="deleteUploadedFile(uploadedFile)">Delete</button>
+        </div>
+      </article>
+    </div>
+  </section>
+</main>

@@ -1,0 +1,11 @@
+{
+  "/api/file": {
+    "target": "https://tmpfiles.org",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api/file$": "/api/v1/upload"
+    },
+    "logLevel": "debug"
+  }
+}
