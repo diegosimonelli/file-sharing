@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FileUploadService } from '../services/file-upload.service';
+import { CommonModule } from '@angular/common';
+import { FileUploadService, UploadResult } from '../services/file-upload.service';
 
 interface UploadedFile {
   name: string;
@@ -14,6 +15,7 @@ interface UploadedFile {
 
 @Component({
   selector: 'app-file-upload',
+  imports: [CommonModule],
   templateUrl: './file-upload.component.html',
   styleUrls: ['./file-upload.component.css']
 })
@@ -27,7 +29,7 @@ export class FileUploadComponent implements OnInit, OnDestroy {
   loading: boolean = false;
   errorMessage: string = '';
   isDragging: boolean = false;
-  file: File = null;
+  file: File | null = null;
   uploadedFiles: UploadedFile[] = [];
 
   constructor(private fileUploadService : FileUploadService) { }
@@ -43,8 +45,9 @@ export class FileUploadComponent implements OnInit, OnDestroy {
   }
 
   // when selecting or dropping the file
-  onChange(event) {
-    this.setFile(event.target.files && event.target.files[0]);
+  onChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.setFile(input.files && input.files[0]);
   }
 
   onDragOver(event: DragEvent) {
@@ -71,42 +74,35 @@ export class FileUploadComponent implements OnInit, OnDestroy {
 
     this.loading = true;
     this.errorMessage = '';
-    this.fileUploadService.upload(this.file).subscribe((event: any) => {
-      if (typeof (event) === 'object') {
-        if (event.success === false || !event.link) {
-          this.errorMessage = event.message || 'Upload failed. Please try again in a moment.';
-          this.loading = false;
-          return;
-        }
-
-        this.shortLink = event.link;
-        const uploadedAt = new Date();
-        const expiresAt = new Date(uploadedAt.getTime() + this.fileAvailabilityMs);
-
-        this.uploadedFiles.unshift({
-          name: this.file.name,
-          size: this.file.size,
-          type: this.file.type || 'Unknown',
-          uploadedAt,
-          expiresAt,
-          remainingMs: this.fileAvailabilityMs,
-          expired: false,
-          link: this.shortLink
-        });
-        this.updateCountdowns();
-        this.loading = false;
-      }
-    }, () => {
-      this.errorMessage = 'Upload failed. Please check your connection and try again.';
+    const file = this.file;
+    this.fileUploadService.upload(file).subscribe((result: UploadResult) => {
       this.loading = false;
+      if (!result.success || !result.link) {
+        this.errorMessage = result.message || 'Upload failed. Please try again in a moment.';
+        return;
+      }
+
+      this.shortLink = result.link;
+      const uploadedAt = new Date();
+      const expiresAt = new Date(uploadedAt.getTime() + this.fileAvailabilityMs);
+
+      this.uploadedFiles.unshift({
+        name: file.name,
+        size: file.size,
+        type: file.type || 'Unknown',
+        uploadedAt,
+        expiresAt,
+        remainingMs: this.fileAvailabilityMs,
+        expired: false,
+        link: this.shortLink
+      });
+      this.updateCountdowns();
     });
   }
 
   /* To copy Text from Textbox */
-  copyInputMessage(inputElement){
-    inputElement.select();
-    document.execCommand('copy');
-    inputElement.setSelectionRange(0, 0);
+  copyInputMessage(inputElement: HTMLInputElement) {
+    this.copyLink(inputElement.value);
   }
 
   copyLink(link: string) {
@@ -164,7 +160,7 @@ export class FileUploadComponent implements OnInit, OnDestroy {
     return Math.min(100, Math.max(0, (elapsedMs / this.fileAvailabilityMs) * 100));
   }
 
-  private setFile(file: File) {
+  private setFile(file: File | null | undefined) {
     if (!file) {
       return;
     }
