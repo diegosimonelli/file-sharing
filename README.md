@@ -1,44 +1,26 @@
-# FileSharing
+# FileShare
 
-Simple file sharing app created with Angular.
+Simple temporary file sharing built with Angular. Upload a file, get a share link, and track each link's 60-minute expiry. Live at https://filesharingbydiego.netlify.app/
 
-## Local development
+## Stack
 
-This project uses Angular 11 and the matching Angular CLI/Webpack build tooling. That stack is older than current Node releases, so the npm scripts run Angular through Node's `--openssl-legacy-provider` flag to avoid `ERR_OSSL_EVP_UNSUPPORTED` on modern Node/OpenSSL versions.
+Angular 21 (standalone components), TypeScript, tmpfiles.org upload API.
 
-The project also pins Angular CLI's transitive PostCSS version with an npm `overrides` entry. This keeps the older Angular 11 CSS loader compatible with modern Node's package export rules.
+## How uploads work
 
-Uploads are sent through `/api/file`, which is proxied to `https://tmpfiles.org/api/v1/upload` during local development. The original file.io upload endpoint this app used no longer accepts the old anonymous `POST https://file.io` flow reliably, so the app now uses a compatible temporary-file upload API and normalizes its response internally.
+The app posts files to `/api/file`. That path is forwarded to `https://tmpfiles.org/api/v1/upload`:
 
-Uploaded files are temporary. TmpFiles automatically deletes uploads after 60 minutes, and the UI shows each file's expiry time with a live countdown.
+- in production by Netlify, via `src/_redirects` (copied into the build output)
+- in development by the Angular dev server, via `proxy.conf.json`
 
-Recommended Node versions:
+tmpfiles.org deletes uploads after 60 minutes; the UI shows a live countdown for each file.
 
-- Best compatibility: Node 16 LTS.
-- Modern local development: Node 18+ can run with the included OpenSSL legacy provider workaround.
+## Run locally
 
-Install dependencies:
+Requires Node 20.19+ or 22.12+.
 
 ```bash
 npm install
+npm start        # dev server at http://localhost:4200
+npm run build    # production build in dist/file-sharing/browser
 ```
-
-Run the app locally:
-
-```bash
-npm start
-```
-
-Build the app:
-
-```bash
-npm run build
-```
-
-The development server uses Angular CLI's default local URL, usually `http://localhost:4200/`.
-
-For Netlify deploys, `src/_redirects` provides the same `/api/file` proxy route.
-
-## Deployment
-
-This project is deployed on https://filesharingbydiego.netlify.app/
